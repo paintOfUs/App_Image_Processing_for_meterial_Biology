@@ -5,7 +5,7 @@ from PyQt6.QtCore import Qt
 from PyQt6 import QtWidgets
 from UI import *
 from image_processing import *
-
+from ImageProcessingThread import *
 
 class MainWindow(QMainWindow):
     
@@ -46,13 +46,26 @@ class MainWindow(QMainWindow):
             "${HOME}",
             "All Files (*);; Python Files (*.py);; PNG Files (*.png)",
         )
-        img, gray, thresh, countour_img, info = self.process.processing(path)
-        self.numpy2pixmap(img,self.ui.img1)
-        self.numpy2pixmap(gray,self.ui.img2)
-        self.numpy2pixmap(thresh,self.ui.img3)
-        self.numpy2pixmap(countour_img,self.ui.img4)
+        # img, gray, thresh, countour_img, info = self.process.processing(path)
+        # self.numpy2pixmap(img,self.ui.img1)
+        # self.numpy2pixmap(gray,self.ui.img2)
+        # self.numpy2pixmap(thresh,self.ui.img3)
+        # self.numpy2pixmap(countour_img,self.ui.img4)
+        # self.setTable(info, self.ui)
+        
+        if path:
+            self.thread = ImageProcessingThread(path)
+            self.thread.processing_finished.connect(self.on_processing_finished)
+            self.thread.start()
+        
+    def on_processing_finished(self, img, gray, erode, contour_image, info):
+        self.numpy2pixmap(img, self.ui.img1)
+        self.numpy2pixmap(gray, self.ui.img2)
+        self.numpy2pixmap(erode, self.ui.img3)
+        self.numpy2pixmap(contour_image, self.ui.img4)
         self.setTable(info, self.ui)
         
+    
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()
